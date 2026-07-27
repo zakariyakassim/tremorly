@@ -1,78 +1,118 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../widgets/postcode_search.dart';
-import '../widgets/crime_summary.dart';
-import '../widgets/crime_list.dart';
+import 'package:forui/forui.dart';
 import '../services/crime_service.dart';
 import '../services/postcode_service.dart';
-import '../bloc/crime_bloc.dart';
-import '../bloc/crime_event.dart';
-import '../bloc/postcode_bloc.dart';
-import '../bloc/postcode_state.dart';
+import '../theme/app_spacing.dart';
+import '../blocs/crime/crime_bloc.dart';
+import '../blocs/crime/crime_event.dart';
+import '../blocs/postcode/postcode_bloc.dart';
+import '../blocs/postcode/postcode_state.dart';
+import '../widgets/crime_results.dart';
+import '../widgets/explorer_intro.dart';
+import '../widgets/postcode_search.dart';
+import '../widgets/theme_mode_switch.dart';
 
 /// Home screen for the crime tracker app
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  final PostcodeService? postcodeService;
+  final CrimeService? crimeService;
+  final ValueChanged<bool>? onThemeChanged;
+
+  const HomeScreen({
+    this.postcodeService,
+    this.crimeService,
+    this.onThemeChanged,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
         BlocProvider(
-          create: (context) => PostcodeBloc(postcodeService: PostcodeService()),
+          create: (context) => PostcodeBloc(
+            postcodeService: postcodeService ?? PostcodeService(),
+          ),
         ),
         BlocProvider(
-          create: (context) => CrimeBloc(crimeService: CrimeService()),
+          create: (context) =>
+              CrimeBloc(crimeService: crimeService ?? CrimeService()),
         ),
       ],
-      child: const _HomeScreenView(),
+      child: _HomeScreenView(onThemeChanged: onThemeChanged),
     );
   }
 }
 
 class _HomeScreenView extends StatelessWidget {
-  const _HomeScreenView();
+  final ValueChanged<bool>? onThemeChanged;
+
+  const _HomeScreenView({this.onThemeChanged});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Crime Tracker')),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              const PostcodeSearch(),
-              BlocListener<PostcodeBloc, PostcodeState>(
-                listener: (context, state) {
-                  if (state is PostcodeValid) {
-                    context.read<CrimeBloc>().add(
-                      FetchCrimesEvent(
-                        state.postcode.latitude,
-                        state.postcode.longitude,
-                      ),
-                    );
-                  }
-                },
-                child: BlocBuilder<PostcodeBloc, PostcodeState>(
-                  builder: (context, state) {
-                    if (state is PostcodeValid) {
-                      return Column(
-                        children: [
-                          const SizedBox(height: 24),
-                          const CrimeSummary(),
-                          const SizedBox(height: 24),
-                          const CrimeList(),
-                        ],
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
+    return FScaffold(
+      childPad: false,
+      header: FHeader(
+        title: const SizedBox.shrink(),
+        suffixes: [ThemeModeSwitch(onChanged: onThemeChanged)],
+      ),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding =
+              constraints.maxWidth < context.theme.breakpoints.sm
+              ? AppSpacing.md
+              : AppSpacing.xl;
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              horizontalPadding,
+              AppSpacing.lg,
+              horizontalPadding,
+              AppSpacing.xxl,
+            ),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSpacing.contentMaxWidth,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const ExplorerIntro(),
+                    const SizedBox(height: AppSpacing.lg),
+                    const PostcodeSearch(),
+                    BlocConsumer<PostcodeBloc, PostcodeState>(
+                      listenWhen: (previous, current) =>
+                          current is PostcodeValid,
+                      listener: (context, state) {
+                        if (state is PostcodeValid) {
+                          context.read<CrimeBloc>().add(
+                            FetchCrimesEvent(
+                              state.postcode.latitude,
+                              state.postcode.longitude,
+                            ),
+                          );
+                        }
+                      },
+                      builder: (context, state) {
+                        if (state is! PostcodeValid) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: AppSpacing.lg),
+                          child: CrimeResults(postcode: state.postcode),
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }

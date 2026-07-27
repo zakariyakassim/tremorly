@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import '../models/postcode.dart';
+import '../../models/postcode.dart';
 
 abstract class PostcodeState extends Equatable {
   const PostcodeState();
@@ -10,6 +10,10 @@ abstract class PostcodeState extends Equatable {
 
 class PostcodeInitial extends PostcodeState {
   const PostcodeInitial();
+}
+
+class PostcodeLoading extends PostcodeState {
+  const PostcodeLoading();
 }
 
 class PostcodeValid extends PostcodeState {

@@ -1,17 +1,32 @@
-# tremorly
+# Neighbourhood Crime Explorer
 
-A new Flutter project.
+A responsive Flutter Web app for exploring the latest available street-level
+crime data near a UK postcode.
 
-## Getting Started
+## How it works
 
-This project is a starting point for a Flutter application.
+1. Postcodes.io suggests matching postcodes as the user types and returns their
+   coordinates.
+2. The UK Police Data API returns incidents within one mile of that point.
+3. BLoCs expose validation and crime loading, success, empty, and error states.
+4. The UI derives category totals locally and filters the complete incident
+   dataset while rendering results in batches of 50.
 
-A few resources to get you started if this is your first Flutter project:
+## Run
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+```sh
+flutter run -d chrome
+```
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+No API key or authentication is required.
+
+## Verify
+
+```sh
+flutter analyze
+flutter test
+flutter build web --release
+```
+
+Police API locations are approximate. In Scotland, only British Transport
+Police data is available.

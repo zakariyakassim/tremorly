@@ -8,7 +8,7 @@ class Crime {
   final String month;
   final String? outcomeStatus;
 
-  Crime({
+  const Crime({
     required this.id,
     required this.category,
     required this.streetName,
@@ -19,27 +19,22 @@ class Crime {
   });
 
   factory Crime.fromJson(Map<String, dynamic> json) {
-    final location = json['location'] as Map<String, dynamic>? ?? {};
-    final street = location['street'] as Map<String, dynamic>? ?? {};
-
-    // Helper function to safely extract string values
-    String? _safeString(dynamic value) {
-      if (value == null) return null;
-      if (value is String) return value;
-      if (value is Map) return null; // Skip maps, they're not strings
-      return value.toString();
-    }
+    final location = _safeMap(json['location']);
+    final street = _safeMap(location['street']);
+    final outcome = _safeMap(json['outcome_status']);
 
     return Crime(
       id: json['id'] is int
           ? json['id'] as int
-          : int.tryParse(json['id'].toString()) ?? 0,
-      category: _safeString(json['category']) ?? 'Unknown',
-      streetName: _safeString(street['name']) ?? 'Unknown location',
-      latitude: _safeString(location['latitude']) ?? '0',
-      longitude: _safeString(location['longitude']) ?? '0',
+          : int.tryParse(_safeString(json['id']) ?? '') ?? 0,
+      category: _safeString(json['category']) ?? 'unknown',
+      streetName: _safeString(street['name']) ?? 'Location unavailable',
+      latitude: _safeString(location['latitude']) ?? '',
+      longitude: _safeString(location['longitude']) ?? '',
       month: _safeString(json['month']) ?? '',
-      outcomeStatus: _safeString(json['outcome_status']),
+      outcomeStatus:
+          _safeString(outcome['category']) ??
+          _safeString(json['outcome_status']),
     );
   }
 
@@ -54,4 +49,22 @@ class Crime {
       'outcome_status': outcomeStatus,
     };
   }
+}
+
+Map<String, dynamic> _safeMap(dynamic value) {
+  if (value is Map<String, dynamic>) {
+    return value;
+  }
+  if (value is Map) {
+    return value.map((key, value) => MapEntry(key.toString(), value));
+  }
+  return const {};
+}
+
+String? _safeString(dynamic value) {
+  if (value == null || value is Map || value is Iterable) {
+    return null;
+  }
+  final text = value.toString().trim();
+  return text.isEmpty ? null : text;
 }

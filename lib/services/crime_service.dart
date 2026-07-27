@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:tremorly/models/crime.dart';
+import 'api_exception.dart';
 
 /// Service for fetching crime data from UK Police API
 class CrimeService {
@@ -24,49 +25,48 @@ class CrimeService {
     double longitude,
   ) async {
     if (latitude == 0.0 && longitude == 0.0) {
-      throw Exception(
-        'Invalid coordinates: postcode validation may have failed',
+      throw const ApiException(
+        'The postcode did not provide usable coordinates.',
       );
     }
 
     try {
-      final response = await _dio.get(
+      final response = await _dio.get<List<dynamic>>(
         '/crimes-street/all-crime',
         queryParameters: {'lat': latitude, 'lng': longitude},
       );
-
-      if (response.statusCode == 200) {
-        final List<dynamic> data = response.data;
-        return data.map((json) => Crime.fromJson(json)).toList();
-      } else {
-        throw Exception('Failed to load crimes');
+      final data = response.data;
+      if (response.statusCode == 200 && data != null) {
+        return data
+            .whereType<Map>()
+            .map((json) => Crime.fromJson(Map<String, dynamic>.from(json)))
+            .toList(growable: false);
       }
+      throw const ApiException('Crime data is unavailable right now.');
     } on DioException catch (e) {
-      if (e.response?.statusCode == 404) {
-        throw Exception('No crimes found for the given coordinates');
+      if (e.response?.statusCode == 400) {
+        throw const ApiException(
+          'The Police API could not search this location.',
+        );
       }
-      throw Exception('Error fetching crimes: ${e.message}');
-    } catch (e) {
-      throw Exception('Error fetching crimes: $e');
+      throw const ApiException(
+        'We could not load nearby incidents. Please try again.',
+      );
+    } on ApiException {
+      rethrow;
+    } catch (_) {
+      throw const ApiException(
+        'We could not read the crime data returned for this area.',
+      );
     }
   }
 
-  /// Get crime summary statistics
-  Future<Map<String, int>> getCrimeSummary(
-    double latitude,
-    double longitude,
-  ) async {
-    try {
-      final crimes = await getCrimesByCoordinates(latitude, longitude);
-      final summary = <String, int>{};
-
-      for (final crime in crimes) {
-        summary[crime.category] = (summary[crime.category] ?? 0) + 1;
-      }
-
-      return summary;
-    } catch (e) {
-      throw Exception('Error fetching crime summary: $e');
+  /// Builds category totals from a fetched crime list without another request.
+  Map<String, int> summarize(List<Crime> crimes) {
+    final summary = <String, int>{};
+    for (final crime in crimes) {
+      summary.update(crime.category, (count) => count + 1, ifAbsent: () => 1);
     }
+    return summary;
   }
 }

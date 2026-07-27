@@ -1,6 +1,5 @@
 import 'package:forui/forui.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 // ignore_for_file: avoid_redundant_argument_values
 
@@ -25,20 +24,20 @@ FThemeData get neutralLight {
     brightness: .light,
     systemOverlayStyle: .dark,
     barrier: Color(0x33000000),
-    background: Color(0xFFFFFFFF),
-    foreground: Color(0xFF0A0A0A),
-    primary: Color(0xFF171717),
-    primaryForeground: Color(0xFFFAFAFA),
-    secondary: Color(0xFFF5F5F5),
-    secondaryForeground: Color(0xFF171717),
-    muted: Color(0xFFF5F5F5),
-    mutedForeground: Color(0xFF737373),
-    destructive: Color(0xFFE7000B),
-    destructiveForeground: Color(0xFFFAFAFA),
-    error: Color(0xFFE7000B),
-    errorForeground: Color(0xFFFAFAFA),
+    background: Color(0xFFF5F7FB),
+    foreground: Color(0xFF14213D),
+    primary: Color(0xFF3157D5),
+    primaryForeground: Color(0xFFFFFFFF),
+    secondary: Color(0xFFE8EEFF),
+    secondaryForeground: Color(0xFF2447B8),
+    muted: Color(0xFFEEF2F7),
+    mutedForeground: Color(0xFF667085),
+    destructive: Color(0xFFD92D20),
+    destructiveForeground: Color(0xFFFFFFFF),
+    error: Color(0xFFD92D20),
+    errorForeground: Color(0xFFFFFFFF),
     card: Color(0xFFFFFFFF),
-    border: Color(0xFFE5E5E5),
+    border: Color(0xFFD6DDEA),
   );
 
   final typography = _typography(colors: colors, touch: touch);
@@ -60,20 +59,20 @@ FThemeData get neutralDark {
     brightness: .dark,
     systemOverlayStyle: .light,
     barrier: Color(0x7A000000),
-    background: Color(0xFF0A0A0A),
-    foreground: Color(0xFFFAFAFA),
-    primary: Color(0xFFE5E5E5),
-    primaryForeground: Color(0xFF171717),
-    secondary: Color(0xFF262626),
-    secondaryForeground: Color(0xFFFAFAFA),
-    muted: Color(0xFF262626),
-    mutedForeground: Color(0xFFA1A1A1),
-    destructive: Color(0xFFFF6467),
-    destructiveForeground: Color(0xFFFAFAFA),
-    error: Color(0xFFFF6467),
-    errorForeground: Color(0xFFFAFAFA),
-    card: Color(0xFF171717),
-    border: Color(0x1AFFFFFF),
+    background: Color(0xFF0D1321),
+    foreground: Color(0xFFF4F7FB),
+    primary: Color(0xFF8CA6FF),
+    primaryForeground: Color(0xFF0B1533),
+    secondary: Color(0xFF1B2948),
+    secondaryForeground: Color(0xFFDDE6FF),
+    muted: Color(0xFF172033),
+    mutedForeground: Color(0xFF98A5BA),
+    destructive: Color(0xFFFF6B6B),
+    destructiveForeground: Color(0xFF1C0A0A),
+    error: Color(0xFFFF6B6B),
+    errorForeground: Color(0xFF1C0A0A),
+    card: Color(0xFF121B2E),
+    border: Color(0xFF2A3750),
   );
 
   final typography = _typography(colors: colors, touch: touch);
@@ -331,8 +330,6 @@ FStyle _style({
     borderRadius: const FBorderRadius(),
     borderWidth: 1,
     pagePadding: const .symmetric(vertical: 8, horizontal: 12),
-    shadow: const [
-      BoxShadow(color: Color(0x0d000000), offset: Offset(0, 1), blurRadius: 2),
-    ],
+    shadow: const [],
   );
 }

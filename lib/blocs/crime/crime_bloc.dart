@@ -1,5 +1,5 @@
-import 'package:bloc/bloc.dart';
-import '../services/crime_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../services/crime_service.dart';
 import 'crime_event.dart';
 import 'crime_state.dart';
 
@@ -20,10 +20,7 @@ class CrimeBloc extends Bloc<CrimeEvent, CrimeState> {
         event.latitude,
         event.longitude,
       );
-      final summary = await crimeService.getCrimeSummary(
-        event.latitude,
-        event.longitude,
-      );
+      final summary = crimeService.summarize(crimes);
       emit(CrimeLoaded(crimes, summary));
     } catch (e) {
       emit(CrimeError(e.toString()));

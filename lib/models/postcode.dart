@@ -9,7 +9,7 @@ class Postcode {
   final double latitude;
   final double longitude;
 
-  Postcode({
+  const Postcode({
     required this.postcode,
     required this.outcode,
     required this.incode,
